@@ -1,0 +1,55 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>    
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
+    <script>
+      const roles = { // inmutable data roles
+        "superadmin": {
+          "can": ["testing"],
+          "inherits": ["admin"]
+        },
+        "admin": {
+          "can": ["delete"],
+          "inherits": ["manager"]
+        },
+        "manager": {
+          "can": ["write", "publish"],
+          "inherits": ["user"]
+        },
+        "user": {
+          "can": ["isLoggedIn", "comment"],
+          "inherits": ["guest"]
+        },
+        "guest": {
+          "can": ["read"]
+        }
+      }
+
+      const user = { // user data
+        "username": 'estebanrfp',
+        "role": "manager"
+      }
+
+      function can (role, operation) { // 12 lines off code - role system for gun
+        if (!roles[role]) { // Check if role exists
+          return false
+        }
+        if (roles[role].can.indexOf(operation) !== -1) { // Check if this role has access
+          return true
+        }
+        if (!roles[role].inherits || roles[role].inherits.length < 1) { // Check if there are any parents
+          return false
+        }
+        return roles[role].inherits.some(childRole => can(childRole, operation)) // Check child roles until one returns true or all return false
+      }
+
+      const ask = "read"
+      const test = can(user.role, ask).toString() // ask
+
+      window.document.write(`${ user.username } can ${ ask } : ${ test }`)
+    </script>
+</body>
+</html>
